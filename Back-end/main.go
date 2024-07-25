@@ -23,7 +23,8 @@ func main() {
 	l := utils.GetLogger()
 
 	con := &Connector{}
-	con.router = controller.InitApplication().Router
+	app:=controller.InitApplication()
+	con.router = app.Router
 	s := http.Server{
 		Addr:         bindAddress,       // configure the bind address
 		Handler:      con.router,        // set the default handler
@@ -32,6 +33,8 @@ func main() {
 		WriteTimeout: 10 * time.Second,  // max time to write response to the client
 		IdleTimeout:  120 * time.Second, // max time for connections using TCP Keep-Alive
 	}
+	sql, _:=app.Db.DB()
+	defer sql.Close()
 
 	// start the server
 	go func() {

@@ -10,18 +10,14 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
-var logger=utils.GetLogger()
+
+var logger = utils.GetLogger()
 // type Router struct{
 
 // }
 
-func initRouter() *mux.Router{
-	router:=mux.NewRouter()
-
-	router.HandleFunc("/test" , func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Hello"))	
-	})	
-	return router
+func (app *Application) initRouter() {
+	app.Router.HandleFunc("/create_user" , app.register).Methods(http.MethodPost)
 }
 func initDatabase()*gorm.DB{
 	DATABASE_USERNAME:=utils.GetEnv("DATABASE_USER")
@@ -29,6 +25,7 @@ func initDatabase()*gorm.DB{
 	fmt.Printf(DATABASE_PASSWORD, "\n " , DATABASE_USERNAME)
 	dsn := fmt.Sprintf("host=localhost user=%s password=%s dbname=MyFitness port=5432 sslmode=disable" ,DATABASE_USERNAME,DATABASE_PASSWORD)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	
 	if(err !=nil){
 		logger.ErrorLog.Fatalf("Connection Failed : %v" , err)
 	}
@@ -39,13 +36,15 @@ func initDatabase()*gorm.DB{
 }
 
 func InitApplication()*Application{
-	application:=&Application{db: initDatabase() , Router:initRouter() }
-	repository.Migration(application.db)
+	application:=&Application{Db: initDatabase() , Router:mux.NewRouter() }
+	application.initRouter()
+	repository.Migration(application.Db)
+
 	return application
 }
 
 type Application struct{
 	Router *mux.Router
-	db *gorm.DB
+	Db *gorm.DB
 }
 
