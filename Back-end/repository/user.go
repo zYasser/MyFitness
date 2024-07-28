@@ -1,7 +1,9 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/zYasser/MyFitness/utils"
@@ -14,18 +16,25 @@ type User struct {
 
     ID       uint   `gorm:"primaryKey;autoIncrement"`
     Name     string
-    Email    string
+    Email    *string `gorm:"unique"`
+	Username    *string `gorm:"unique"`
     Birthday *time.Time
     Password string
 }
 
 func (user *User) CreateUser(db *gorm.DB) error {
+    fmt.Println(user.Email)
 	tx:=db.Create(&user)
-	err:=tx.Error
-	fmt.Println(err)
-	tx.Commit()
-	if(err!=nil){
-		logger.ErrorLog.Printf("Error While Inserting %v, Error: %v\n", user, err)
+	if tx.Error != nil {
+		fmt.Println(tx.Error.Error())
+		if strings.Contains(tx.Error.Error(), "duplicate key value violates unique constraint") {
+			fmt.Println("---" , tx.Error.Error())
+			col := utils.ExtractColumn(tx.Error.Error())
+			return fmt.Errorf("%s Already Exist" , col)
+		} else {
+			logger.ErrorLog.Printf("Unexpected Error Occurred:%v" , tx.Error)
+			return errors.New("")
+		}
 	}
-	return nil
+    return nil
 }

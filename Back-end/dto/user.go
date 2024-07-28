@@ -9,4 +9,6 @@ type User struct{
 	Email    string `json:"email" validate:"required"`
 	Birthday *time.Time `json:"birthday"`
 	Password string `json:"password"`
+	Username    string `json:"username" validate:"required"`
+
 }
