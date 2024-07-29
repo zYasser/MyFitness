@@ -5,7 +5,7 @@ import (
 	"github.com/zYasser/MyFitness/repository"
 )
 
-func MapParametersToUser(user dto.User) repository.User {
+func MapUserDtoToUser(user dto.User) repository.User {
 	return repository.User{
 		Name:     user.Name,
 		Email:    &user.Email,
@@ -16,7 +16,7 @@ func MapParametersToUser(user dto.User) repository.User {
 	}
 }
 
-func MapUserToParameters(user repository.User) dto.User {
+func MapUserToUserDto(user repository.User) dto.User {
 	return dto.User{
 		Name:     user.Name,
 		Email:    *user.Email,

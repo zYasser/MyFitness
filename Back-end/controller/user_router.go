@@ -13,38 +13,40 @@ var validate = validator.New()
 
 func (app *Application) register(w http.ResponseWriter, r *http.Request) {
 	logger.InfoLog.Println("Received Register Request")
-	params:=&dto.User{}
-	err:=utils.FromJSON(params,r.Body)
-	if(err!=nil){
-		logger.ErrorLog.Printf("Failed to decode to json error: %v \n" ,err )	
+
+	// Decode request body to user DTO
+	var params dto.User
+	if err := utils.FromJSON(&params, r.Body); err != nil {
+		logger.ErrorLog.Printf("Failed to decode JSON: %v", err)
+		utils.RespondWithJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
+		return
 	}
+
 	logger.InfoLog.Println("Validating the Request")
 
-	errs := utils.Validate(params, validate)
-		if len(errs) !=0{
-			utils.RespondWithJSON(w,http.StatusBadRequest,errs)
-			return
-		}
-	
-	logger.InfoLog.Println("Inserting DB")
-
-	user:=mapper.MapParametersToUser(*params)
-	err = user.CreateUser(app.Db)
-
-	if(err!=nil){
-		logger.ErrorLog.Printf("Registration Failed Error : %v " , err )
-		status:=http.StatusBadRequest
-		if err.Error()=="" {
-			status=http.StatusInternalServerError
-		}
-		utils.RespondWithJSON(w, status  , struct {
-			Message string `json:"message"`
-			Error string `json:"error"`
-		}{Message: "Error occurred during user registration" , Error: err.Error()})	
-			return
+	// Validate user DTO
+	if errs := utils.Validate(&params, validate); len(errs) != 0 {
+		utils.RespondWithJSON(w, http.StatusBadRequest, errs)
+		return
 	}
-		logger.InfoLog.Println("Finished Inserting")
-		utils.RespondWithJSON(w,http.StatusCreated,user)
 
+	logger.InfoLog.Println("Inserting into DB")
 
+	// Map DTO to user model and create user
+	user := mapper.MapUserDtoToUser(params)
+	if err := user.CreateUser(app.Db); err != nil {
+		logger.ErrorLog.Printf("Registration Failed: %v", err)
+		status := http.StatusInternalServerError
+		if err.Error() == "" {
+			status = http.StatusInternalServerError
+		}
+		utils.RespondWithJSON(w, status, map[string]string{
+			"message": "Error occurred during user registration",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	logger.InfoLog.Println("Finished Inserting")
+	utils.RespondWithJSON(w, http.StatusCreated, mapper.MapUserToUserDto(user))
 }

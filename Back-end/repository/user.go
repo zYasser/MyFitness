@@ -24,15 +24,21 @@ type User struct {
 
 func (user *User) CreateUser(db *gorm.DB) error {
     fmt.Println(user.Email)
+	hashedPassword, err :=utils.HashPassword(user.Password)
+	if(err !=nil){
+		logger.ErrorLog.Printf("Failed To hash the password")
+		return errors.New("")
+
+	}
+	user.Password=hashedPassword
 	tx:=db.Create(&user)
 	if tx.Error != nil {
 		fmt.Println(tx.Error.Error())
 		if strings.Contains(tx.Error.Error(), "duplicate key value violates unique constraint") {
-			fmt.Println("---" , tx.Error.Error())
 			col := utils.ExtractColumn(tx.Error.Error())
 			return fmt.Errorf("%s Already Exist" , col)
 		} else {
-			logger.ErrorLog.Printf("Unexpected Error Occurred:%v" , tx.Error)
+			logger.ErrorLog.Printf("Unexpected Error Occurred:%v \n" , tx.Error)
 			return errors.New("")
 		}
 	}
