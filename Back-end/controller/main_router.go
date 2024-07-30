@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/zYasser/MyFitness/repository"
+	"github.com/zYasser/MyFitness/service"
 	"github.com/zYasser/MyFitness/utils"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -18,6 +18,7 @@ var logger = utils.GetLogger()
 
 func (app *Application) initRouter() {
 	app.Router.HandleFunc("/create_user" , app.register).Methods(http.MethodPost)
+	app.Router.HandleFunc("/login" , app.login).Methods(http.MethodPost)
 }
 func initDatabase()*gorm.DB{
 	DATABASE_USERNAME:=utils.GetEnv("DATABASE_USER")
@@ -38,7 +39,7 @@ func initDatabase()*gorm.DB{
 func InitApplication()*Application{
 	application:=&Application{Db: initDatabase() , Router:mux.NewRouter() }
 	application.initRouter()
-	repository.Migration(application.Db)
+	service.Migration(application.Db)
 
 	return application
 }

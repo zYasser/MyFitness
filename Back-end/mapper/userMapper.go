@@ -2,11 +2,11 @@ package mapper
 
 import (
 	"github.com/zYasser/MyFitness/dto"
-	"github.com/zYasser/MyFitness/repository"
+	"github.com/zYasser/MyFitness/service"
 )
 
-func MapUserDtoToUser(user dto.User) repository.User {
-	return repository.User{
+func MapUserDtoToUser(user dto.User) service.User {
+	return service.User{
 		Name:     user.Name,
 		Email:    &user.Email,
 		Username:    &user.Username,
@@ -16,7 +16,7 @@ func MapUserDtoToUser(user dto.User) repository.User {
 	}
 }
 
-func MapUserToUserDto(user repository.User) dto.User {
+func MapUserToUserDto(user service.User) dto.User {
 	return dto.User{
 		Name:     user.Name,
 		Email:    *user.Email,
