@@ -1,12 +1,12 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/zYasser/MyFitness/dto"
 	"github.com/zYasser/MyFitness/mapper"
+	"github.com/zYasser/MyFitness/middleware"
 	"github.com/zYasser/MyFitness/service"
 	"github.com/zYasser/MyFitness/utils"
 )
@@ -14,6 +14,8 @@ import (
 var validate = validator.New()
 
 func (app *Application) register(w http.ResponseWriter, r *http.Request) {
+	con:= r.Context()
+	logger:=middleware.FromContext(con)
 	logger.InfoLog.Println("Received Register Request")
 
 	// Decode request body to user DTO
@@ -36,8 +38,7 @@ func (app *Application) register(w http.ResponseWriter, r *http.Request) {
 
 	// Map DTO to user model and create user
 	user := mapper.MapUserDtoToUser(params)
-	fmt.Println(user.Password)
-	if err := user.CreateUser(app.Db); err != nil {
+	if err := user.CreateUser(app.Db, logger); err != nil {
 		logger.ErrorLog.Printf("Registration Failed: %v", err)
 		status := http.StatusBadRequest
 		if err.Error() == "" {
@@ -54,6 +55,9 @@ func (app *Application) register(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusCreated, user)
 }
 func (app *Application) login(w http.ResponseWriter, r *http.Request){
+	con:= r.Context()
+	logger :=middleware.FromContext(con)
+
 	logger.InfoLog.Println("Received log in request")
 	var params dto.UserLogin
 	if err := utils.FromJSON(&params, r.Body); err != nil {
@@ -68,7 +72,7 @@ func (app *Application) login(w http.ResponseWriter, r *http.Request){
 		}
 	
 	
-	err :=service.ValidateUser(app.Db , params)
+	err := service.ValidateUser(app.Db , params ,logger)
 	if(err !=nil){
 		status := http.StatusUnauthorized
 		if err.Error() == "" {

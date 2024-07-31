@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/zYasser/MyFitness/controller"
-	"github.com/zYasser/MyFitness/utils"
 )
 
 type Connector struct {
@@ -20,15 +20,14 @@ type Connector struct {
 var bindAddress = ":9090"
 
 func main() {
-	l := utils.GetLogger()
 
 	con := &Connector{}
 	app:=controller.InitApplication()
 	con.router = app.Router
+	
 	s := http.Server{
 		Addr:         bindAddress,       // configure the bind address
 		Handler:      con.router,        // set the default handler
-		ErrorLog:     l.ErrorLog,                 // set the logger for the server
 		ReadTimeout:  5 * time.Second,   // max time to read request from the client
 		WriteTimeout: 10 * time.Second,  // max time to write response to the client
 		IdleTimeout:  120 * time.Second, // max time for connections using TCP Keep-Alive
@@ -38,11 +37,11 @@ func main() {
 
 	// start the server
 	go func() {
-		l.InfoLog.Println("Starting server on port 9090")
+		log.Println("Starting server on port 9090")
 
 		err := s.ListenAndServe()
 		if err != nil {
-			l.ErrorLog.Fatalf("Error starting server: %s\n", err)
+			log.Fatalf("Error starting server: %s\n", err)
 			os.Exit(1)
 		}
 	}()
@@ -54,7 +53,7 @@ func main() {
 
 	// Block until a signal is received.
 	sig := <-c
-	l.InfoLog.Println("Got signal:", sig)
+	log.Println("Got signal:", sig)
 
 	// gracefully shutdown the server, waiting max 30 seconds for current operations to complete
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)

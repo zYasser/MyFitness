@@ -2,23 +2,27 @@ package controller
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/zYasser/MyFitness/middleware"
 	"github.com/zYasser/MyFitness/service"
 	"github.com/zYasser/MyFitness/utils"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-var logger = utils.GetLogger()
+// var logger = utils.GetLogger()
 // type Router struct{
 
 // }
 
 func (app *Application) initRouter() {
-	app.Router.HandleFunc("/create_user" , app.register).Methods(http.MethodPost)
-	app.Router.HandleFunc("/login" , app.login).Methods(http.MethodPost)
+	app.Router.Use(middleware.LoggingMiddleware)
+	userRouter := app.Router.PathPrefix("/users").Subrouter()
+	userRouter.HandleFunc("/register" , app.register).Methods(http.MethodPost)
+	userRouter.HandleFunc("/login" , app.login).Methods(http.MethodPost)
 }
 func initDatabase()*gorm.DB{
 	DATABASE_USERNAME:=utils.GetEnv("DATABASE_USER")
@@ -28,9 +32,9 @@ func initDatabase()*gorm.DB{
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	
 	if(err !=nil){
-		logger.ErrorLog.Fatalf("Connection Failed : %v" , err)
+		log.Fatalf("Connection Failed : %v" , err)
 	}
-	logger.InfoLog.Println("Connection has been established")
+	log.Println("Connection has been established")
 	
 	return db
 	

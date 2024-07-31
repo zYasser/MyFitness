@@ -1,7 +1,11 @@
 package service
 
-import "gorm.io/gorm"
+import (
+	// "github.com/zYasser/MyFitness/utils"
+	"gorm.io/gorm"
+)
+// var logger = utils.GetLogger()
 
 func Migration(db *gorm.DB) {
-	db.AutoMigrate(&User{})
+	db.AutoMigrate(&User{} , &Exercise{})
 }

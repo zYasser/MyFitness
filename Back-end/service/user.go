@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/zYasser/MyFitness/dto"
+	"github.com/zYasser/MyFitness/middleware"
 	"github.com/zYasser/MyFitness/utils"
 	"gorm.io/gorm"
 )
-var logger = utils.GetLogger()
 
 type User struct {
 	gorm.Model
@@ -23,8 +23,7 @@ type User struct {
     Password string `json:"-"`
 }
 
-func (user *User) CreateUser(db *gorm.DB) error {
-    fmt.Println(user.Email)
+func (user *User) CreateUser(db *gorm.DB ,logger *middleware.Logger) error {
 	hashedPassword, err :=utils.HashPassword(user.Password)
 	if(err !=nil){
 		logger.ErrorLog.Printf("Failed To hash the password")
@@ -34,7 +33,6 @@ func (user *User) CreateUser(db *gorm.DB) error {
 	user.Password=hashedPassword
 	tx:=db.Create(&user)
 	if tx.Error != nil {
-		fmt.Println(tx.Error.Error())
 		if strings.Contains(tx.Error.Error(), "duplicate key value violates unique constraint") {
 			col := utils.ExtractColumn(tx.Error.Error())
 			return fmt.Errorf("%s Already Exist" , col)
@@ -46,7 +44,7 @@ func (user *User) CreateUser(db *gorm.DB) error {
     return nil
 }
 
-func ValidateUser(db *gorm.DB ,  credential dto.UserLogin ) error{
+func ValidateUser(db *gorm.DB ,  credential dto.UserLogin , logger *middleware.Logger ) error{
 	logger.InfoLog.Printf("User:%s trying to login  \n " , credential.Username)
 
 	var user User
