@@ -1,6 +1,11 @@
 package service
 
-import "gorm.io/gorm"
+import (
+	"errors"
+
+	"github.com/zYasser/MyFitness/middleware"
+	"gorm.io/gorm"
+)
 
 type Exercise struct {
 	gorm.Model
@@ -12,3 +17,15 @@ type Exercise struct {
 
 
 
+func (exercise *Exercise) InsertExercise(db *gorm.DB , logger *middleware.Logger) error{
+
+	tx:=db.Create(&exercise)
+	logger.InfoLog.Printf("Inserting: %v \n " , *exercise )
+	if(tx.Error != nil){
+		logger.ErrorLog.Printf("Unexpected Error Occurred:%v \n" , tx.Error)
+		return errors.New("")
+
+	}
+	return nil
+
+}

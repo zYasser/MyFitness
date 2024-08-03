@@ -45,7 +45,6 @@ func (app *Application) register(w http.ResponseWriter, r *http.Request) {
 			status = http.StatusInternalServerError
 		}
 		utils.RespondWithJSON(w, status, map[string]string{
-			"message": "Error occurred during user registration",
 			"error":   err.Error(),
 		})
 		return
@@ -79,7 +78,6 @@ func (app *Application) login(w http.ResponseWriter, r *http.Request){
 			status = http.StatusInternalServerError
 		}
 		utils.RespondWithJSON(w, status, map[string]string{
-			"message": "Error occurred during user registration",
 			"error":   err.Error(),
 		})
 		return

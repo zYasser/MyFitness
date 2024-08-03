@@ -23,7 +23,9 @@ func (app *Application) initRouter() {
 	userRouter := app.Router.PathPrefix("/users").Subrouter()
 	userRouter.HandleFunc("/register" , app.register).Methods(http.MethodPost)
 	userRouter.HandleFunc("/login" , app.login).Methods(http.MethodPost)
-}
+	exercise_router := app.Router.PathPrefix("/exercise").Subrouter()
+	exercise_router.HandleFunc( "",app.createExercise).Methods(http.MethodPost)
+}	
 func initDatabase()*gorm.DB{
 	DATABASE_USERNAME:=utils.GetEnv("DATABASE_USER")
 	DATABASE_PASSWORD:=utils.GetEnv("DATABASE_PASSWORD")
