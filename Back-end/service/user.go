@@ -37,7 +37,7 @@ func (user *User) CreateUser(db *gorm.DB ,logger *middleware.Logger) error {
 			col := utils.ExtractColumn(tx.Error.Error())
 			return fmt.Errorf("%s Already Exist" , col)
 		} else {
-			logger.ErrorLog.Printf("Unexpected Error Occurred:%v \n" , tx.Error)
+			logger.ErrorLog.Printf("Unexpected Error Occurred:%v" , tx.Error)
 			return errors.New("")
 		}
 	}
@@ -45,7 +45,7 @@ func (user *User) CreateUser(db *gorm.DB ,logger *middleware.Logger) error {
 }
 
 func ValidateUser(db *gorm.DB ,  credential dto.UserLogin , logger *middleware.Logger ) error{
-	logger.InfoLog.Printf("User:%s trying to login  \n " , credential.Username)
+	logger.InfoLog.Printf("User:%s trying to login " , credential.Username)
 
 	var user User
 	result:=db.Where("username= ?" , credential.Username).First(&user)
@@ -55,17 +55,17 @@ func ValidateUser(db *gorm.DB ,  credential dto.UserLogin , logger *middleware.L
 			return fmt.Errorf("%s User doesn't exist" ,credential.Username )
 		}
 		
-		logger.ErrorLog.Printf("Unexpected Error Occurred:%v \n" , result.Error)
+		logger.ErrorLog.Printf("Unexpected Error Occurred:%v" , result.Error)
 		return errors.New("")
 
 		
 	}
 	if(!utils.CheckPasswordHash(credential.Password, user.Password)){
-		logger.ErrorLog.Printf("User:%s tried to login with wrong password \n" ,credential.Username )
+		logger.ErrorLog.Printf("User:%s tried to login with wrong password" ,credential.Username )
 		return errors.New("check you username and password")
 
 	}
-	logger.InfoLog.Printf("User:%s successfully logged in \n " , credential.Username)
+	logger.InfoLog.Printf("User:%s successfully logged in" , credential.Username)
 	return nil 
 }
 

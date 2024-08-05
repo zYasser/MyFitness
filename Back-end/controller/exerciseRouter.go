@@ -15,7 +15,7 @@ func (app *Application) createExercise(w http.ResponseWriter , r *http.Request) 
 	logger.InfoLog.Println("Received Create Exercise Request")
 	var params dto.Exercise
 	if err:=utils.FromJSON(&params , r.Body); err!=nil{
-		logger.ErrorLog.Printf("Failed to serialize this object:%v\n", r.Body)
+		logger.ErrorLog.Printf("Failed to serialize this object:%v", r.Body)
 		utils.RespondWithJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
 		return
 
