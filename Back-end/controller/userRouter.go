@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -83,7 +84,28 @@ func (app *Application) login(w http.ResponseWriter, r *http.Request){
 		return
 
 	}
+	token,err :=utils.CreateToken(params.Username, logger)
+	if(err !=nil){
+		logger.ErrorLog.Println("Failed To Create A JWT Token")
+	}
+	if(err==nil){
+		cookie := http.Cookie{
+			Name:     "access_token",
+			Value:    fmt.Sprintf("bearer %s" , token),
+			HttpOnly: true,
+			Secure:   true,
+		}
+		// Use the http.SetCookie() function to send the cookie to the client.
+		// Behind the scenes this adds a `Set-Cookie` header to the response
+		// containing the necessary cookie data.
+		http.SetCookie(w, &cookie)
+
+	
+	}
+
+
 	utils.RespondWithJSON(w, http.StatusOK,nil )
 	
 
 }
+
