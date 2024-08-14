@@ -3,24 +3,23 @@ package service
 import (
 	"errors"
 
-	"github.com/zYasser/MyFitness/middleware"
+	"github.com/zYasser/MyFitness/utils"
 	"gorm.io/gorm"
 )
 
 type Exercise struct {
 	gorm.Model
 
-	ID   uint   `gorm:"primaryKey;autoIncrement" json:"id"`
 	Name string `json:"name" gorm:"not null"`
 	Type string `json:"type" gorm:"not null"`
 }
 
 
 
-func (exercise *Exercise) InsertExercise(db *gorm.DB , logger *middleware.Logger) error{
+func (exercise *Exercise) InsertExercise(db *gorm.DB , logger *utils.Logger) error{
 
 	tx:=db.Create(&exercise)
-	logger.InfoLog.Printf("Inserting: %v \n " , *exercise )
+	logger.InfoLog.Printf("Inserting: %v  " , *exercise )
 	if(tx.Error != nil){
 		logger.ErrorLog.Printf("Unexpected Error Occurred:%v \n" , tx.Error)
 		return errors.New("")
@@ -28,4 +27,13 @@ func (exercise *Exercise) InsertExercise(db *gorm.DB , logger *middleware.Logger
 	}
 	return nil
 
+}
+
+
+
+func GetAllExercise(db *gorm.DB , logger *utils.Logger) []Exercise{
+	var e []Exercise
+	db.Find(&e)
+	logger.InfoLog.Print("Fetching All Exercises:")
+	return e
 }

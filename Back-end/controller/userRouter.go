@@ -14,8 +14,8 @@ import (
 var validate = validator.New()
 
 func (app *Application) register(w http.ResponseWriter, r *http.Request) {
-	con:= r.Context()
-	logger:=middleware.FromContext(con)
+	con := r.Context()
+	logger := middleware.FromContext(con)
 	logger.InfoLog.Println("Received Register Request")
 
 	// Decode request body to user DTO
@@ -45,7 +45,7 @@ func (app *Application) register(w http.ResponseWriter, r *http.Request) {
 			status = http.StatusInternalServerError
 		}
 		utils.RespondWithJSON(w, status, map[string]string{
-			"error":   err.Error(),
+			"error": err.Error(),
 		})
 		return
 	}
@@ -53,9 +53,9 @@ func (app *Application) register(w http.ResponseWriter, r *http.Request) {
 	logger.InfoLog.Println("Finished Inserting")
 	utils.RespondWithJSON(w, http.StatusCreated, user)
 }
-func (app *Application) login(w http.ResponseWriter, r *http.Request){
-	con:= r.Context()
-	logger :=middleware.FromContext(con)
+func (app *Application) login(w http.ResponseWriter, r *http.Request) {
+	con := r.Context()
+	logger := middleware.FromContext(con)
 
 	logger.InfoLog.Println("Received log in request")
 	var params dto.UserLogin
@@ -64,47 +64,47 @@ func (app *Application) login(w http.ResponseWriter, r *http.Request){
 		utils.RespondWithJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
 		return
 	}
-		// Validate user DTO
+	// Validate user DTO
 	if errs := utils.Validate(&params, validate); len(errs) != 0 {
-			utils.RespondWithJSON(w, http.StatusBadRequest, errs)
-			return
-		}
-	
-	
-	err := service.ValidateUser(app.Db , params ,logger)
-	if(err !=nil){
+		utils.RespondWithJSON(w, http.StatusBadRequest, errs)
+		return
+	}
+
+	err := service.ValidateUser(app.Db, params, logger)
+	if err != nil {
 		status := http.StatusUnauthorized
 		if err.Error() == "" {
 			status = http.StatusInternalServerError
 		}
 		utils.RespondWithJSON(w, status, map[string]string{
-			"error":   err.Error(),
+			"error": err.Error(),
 		})
 		return
 
 	}
-	token,err :=utils.CreateToken(params.Username)
-	if(err !=nil){
+	token, refresh, err := utils.CreateToken(params.Username)
+	if err != nil {
 		logger.ErrorLog.Println("Failed To Create A JWT Token")
-	}
-	if(err==nil){
-		cookie := http.Cookie{
-			Name:     "access_token",
-			Value:    token,
-			HttpOnly: true,
-			Secure:   true,
-		}
-		// Use the http.SetCookie() function to send the cookie to the client.
-		// Behind the scenes this adds a `Set-Cookie` header to the response
-		// containing the necessary cookie data.
-		http.SetCookie(w, &cookie)
+		utils.RespondWithJSON(w, http.StatusInternalServerError, map[string]string{
+			"error": "Something Went Wrong Please Try Again ",
+		})
+		return
 
-	
 	}
 
+	service.CreateRefreshToken(con, app.Redis, refresh, params.Username)
+	cookie := http.Cookie{
+		Name:     "access_token",
+		Value:    token,
+		HttpOnly: true,
+		Secure:   true,
+		Path:     "/",
+	}
+	// Use the http.SetCookie() function to send the cookie to the client.
+	// Behind the scenes this adds a `Set-Cookie` header to the response
+	// containing the necessary cookie data.
+	http.SetCookie(w, &cookie)
 
-	utils.RespondWithJSON(w, http.StatusOK,nil )
-	
+	utils.RespondWithJSON(w, http.StatusOK, nil)
 
 }
-

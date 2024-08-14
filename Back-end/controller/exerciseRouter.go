@@ -6,6 +6,7 @@ import (
 	"github.com/zYasser/MyFitness/dto"
 	"github.com/zYasser/MyFitness/mapper"
 	"github.com/zYasser/MyFitness/middleware"
+	"github.com/zYasser/MyFitness/service"
 	"github.com/zYasser/MyFitness/utils"
 )
 
@@ -28,5 +29,16 @@ func (app *Application) createExercise(w http.ResponseWriter , r *http.Request) 
 	exercise:= mapper.DtoToExercise(params)
 	exercise.InsertExercise(app.Db , logger)
 	utils.RespondWithJSON(w,http.StatusCreated , exercise)
+
+}
+
+
+func  (app *Application) fetchAllExercises (w http.ResponseWriter , r *http.Request){
+	con:= r.Context()
+	logger:=middleware.FromContext(con)
+	logger.InfoLog.Println("fetch All Exercises Request")
+	exercises :=service.GetAllExercise(app.Db , logger)
+	utils.RespondWithJSON(w,http.StatusOK , exercises)
+
 
 }
