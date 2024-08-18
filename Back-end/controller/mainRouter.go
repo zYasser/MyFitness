@@ -22,9 +22,10 @@ func (app *Application) initRouter() {
 	userRouter.HandleFunc("/register" , app.register).Methods(http.MethodPost)
 	userRouter.HandleFunc("/login" , app.login).Methods(http.MethodPost)
 	exercise_router := app.Router.PathPrefix("/exercise").Subrouter()
-	exercise_router.Use(middleware.AuthorizationMiddleware(app.Redis))
+	// exercise_router.Use(middleware.AuthorizationMiddleware(app.Redis))
 	exercise_router.HandleFunc( "",app.createExercise).Methods(http.MethodPost)
 	exercise_router.HandleFunc( "",app.fetchAllExercises).Methods(http.MethodGet)
+	exercise_router.HandleFunc("/{id}" , app.getExerciseFromId).Methods(http.MethodGet)
 }	
 
 

@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/zYasser/MyFitness/dto"
 	"github.com/zYasser/MyFitness/mapper"
 	"github.com/zYasser/MyFitness/middleware"
@@ -29,6 +30,23 @@ func (app *Application) createExercise(w http.ResponseWriter , r *http.Request) 
 	exercise:= mapper.DtoToExercise(params)
 	exercise.InsertExercise(app.Db , logger)
 	utils.RespondWithJSON(w,http.StatusCreated , exercise)
+
+}
+
+func (app *Application) getExerciseFromId(w http.ResponseWriter , r *http.Request){
+	con:= r.Context()
+	logger:=middleware.FromContext(con)
+	logger.InfoLog.Println("Received Create Exercise Request")
+	vars :=mux.Vars(r)
+	exerciseId:=vars["id"]
+	result , err:=service.GetExerciseById(exerciseId , app.Db , logger)
+	if(err==nil){
+		utils.RespondWithJSON(w, http.StatusOK, result)
+
+	}else{
+		utils.RespondWithJSON(w,err.StatusCode,err)
+	}
+
 
 }
 
