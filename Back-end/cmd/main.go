@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/zYasser/MyFitness/internal"
 	"log"
 	"net/http"
 	"os"
@@ -10,7 +11,6 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/zYasser/MyFitness/controller"
 )
 
 type Connector struct {
@@ -22,9 +22,9 @@ var bindAddress = ":9090"
 func main() {
 
 	con := &Connector{}
-	app:=controller.InitApplication()
+	app := internal.InitApplication()
 	con.router = app.Router
-	
+
 	s := http.Server{
 		Addr:         bindAddress,       // configure the bind address
 		Handler:      con.router,        // set the default handler
@@ -32,7 +32,7 @@ func main() {
 		WriteTimeout: 10 * time.Second,  // max time to write response to the client
 		IdleTimeout:  120 * time.Second, // max time for connections using TCP Keep-Alive
 	}
-	sql, _:=app.Db.DB()
+	sql, _ := app.Db.DB()
 	defer sql.Close()
 
 	// start the server

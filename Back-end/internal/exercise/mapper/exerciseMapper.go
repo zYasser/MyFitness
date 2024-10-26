@@ -2,7 +2,7 @@ package mapper
 
 import (
 	"github.com/zYasser/MyFitness/dto"
-	"github.com/zYasser/MyFitness/service"
+	"github.com/zYasser/MyFitness/internal/exercise/service"
 )
 
 func DtoToExercise(dto dto.Exercise) *service.Exercise {

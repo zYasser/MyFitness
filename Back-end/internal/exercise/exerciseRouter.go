@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"github.com/zYasser/MyFitness/internal"
 	"github.com/zYasser/MyFitness/internal/exercise/mapper"
 	"github.com/zYasser/MyFitness/internal/exercise/service"
 	"net/http"
@@ -12,7 +11,7 @@ import (
 	"github.com/zYasser/MyFitness/utils"
 )
 
-func (app *internal.Application) createExercise(w http.ResponseWriter, r *http.Request) {
+func (app *Application) createExercise(w http.ResponseWriter, r *http.Request) {
 	con := r.Context()
 	logger := middleware.FromContext(con)
 	logger.InfoLog.Println("Received Create Exercise Request")
@@ -34,7 +33,7 @@ func (app *internal.Application) createExercise(w http.ResponseWriter, r *http.R
 
 }
 
-func (app *internal.Application) getExerciseFromId(w http.ResponseWriter, r *http.Request) {
+func (app *Application) getExerciseFromId(w http.ResponseWriter, r *http.Request) {
 	con := r.Context()
 	logger := middleware.FromContext(con)
 	logger.InfoLog.Println("Received Create Exercise Request")
@@ -50,7 +49,7 @@ func (app *internal.Application) getExerciseFromId(w http.ResponseWriter, r *htt
 
 }
 
-func (app *internal.Application) fetchAllExercises(w http.ResponseWriter, r *http.Request) {
+func (app *Application) fetchAllExercises(w http.ResponseWriter, r *http.Request) {
 	con := r.Context()
 	logger := middleware.FromContext(con)
 	logger.InfoLog.Println("fetch All Exercises Request")
