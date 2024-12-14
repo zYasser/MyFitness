@@ -15,7 +15,7 @@ type User struct {
 
     ID       uint   `gorm:"primaryKey;autoIncrement" json:"id"`
     Name     string `json:"name"`
-    Email    *string `gorm:"unique" json:"email"`
+    Email    string `gorm:"unique" json:"email"`
 	Username  *string `gorm:"unique" json:"username"`
     Birthday *time.Time `json:"birthday"`
     Password string `json:"-"`

@@ -8,7 +8,7 @@ import (
 func MapUserDtoToUser(user dto.User) service.User {
 	return service.User{
 		Name:     user.Name,
-		Email:    &user.Email,
+		Email:    user.Email,
 		Username:    &user.Username,
 
 		Birthday: user.Birthday,
@@ -19,7 +19,7 @@ func MapUserDtoToUser(user dto.User) service.User {
 func MapUserToUserDto(user service.User) dto.User {
 	return dto.User{
 		Name:     user.Name,
-		Email:    *user.Email,
+		Email:    user.Email,
 		Birthday: user.Birthday,
 		Password: user.Password,
 		Username: *user.Username,

@@ -7,5 +7,5 @@ import (
 // var logger = utils.GetLogger()
 
 func Migration(db *gorm.DB) {
-	db.AutoMigrate(&User{} , &Exercise{})
+	db.AutoMigrate(&User{} , &Exercise{} , &Workout{})
 }

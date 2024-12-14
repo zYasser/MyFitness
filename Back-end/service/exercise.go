@@ -13,6 +13,7 @@ type Exercise struct {
 
 	Name string `json:"name" gorm:"not null"`
 	Type string `json:"type" gorm:"not null"`
+	Workout []Workout
 }
 
 func (exercise *Exercise) InsertExercise(db *gorm.DB, logger *utils.Logger) error {
