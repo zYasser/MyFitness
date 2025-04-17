@@ -6,7 +6,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/zYasser/MyFitness/dto"
 	"github.com/zYasser/MyFitness/mapper"
-	"github.com/zYasser/MyFitness/middleware"
 	"github.com/zYasser/MyFitness/service"
 	"github.com/zYasser/MyFitness/utils"
 )
@@ -14,19 +13,16 @@ import (
 var validate = validator.New()
 
 func (app *Application) register(w http.ResponseWriter, r *http.Request) {
-	con := r.Context()
-	logger := middleware.FromContext(con)
-	logger.InfoLog.Println("Received Register Request")
+	app.Logger.InfoLog.Println("Received Register Request")
 
-	// Decode request body to user DTO
 	var params dto.User
 	if err := utils.FromJSON(&params, r.Body); err != nil {
-		logger.ErrorLog.Printf("Failed to decode JSON: %v", err)
+		app.Logger.ErrorLog.Printf("Failed to decode JSON: %v", err)
 		utils.RespondWithJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
 		return
 	}
 
-	logger.InfoLog.Println("Validating the Request")
+	app.Logger.InfoLog.Println("Validating the Request")
 
 	// Validate user DTO
 	if errs := utils.Validate(&params, validate); len(errs) != 0 {
@@ -34,12 +30,12 @@ func (app *Application) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logger.InfoLog.Println("Inserting into DB")
+	app.Logger.InfoLog.Println("Inserting into DB")
 
 	// Map DTO to user model and create user
 	user := mapper.MapUserDtoToUser(params)
-	if err := user.CreateUser(app.Db, logger); err != nil {
-		logger.ErrorLog.Printf("Registration Failed: %v", err)
+	if err := service.CreateUser(user, app.Db, app.Logger); err != nil {
+		app.Logger.ErrorLog.Printf("Registration Failed: %v", err)
 		status := http.StatusBadRequest
 		if err.Error() == "" {
 			status = http.StatusInternalServerError
@@ -50,17 +46,15 @@ func (app *Application) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logger.InfoLog.Println("Finished Inserting")
+	app.Logger.InfoLog.Println("Finished Inserting")
 	utils.RespondWithJSON(w, http.StatusCreated, user)
 }
 func (app *Application) login(w http.ResponseWriter, r *http.Request) {
-	con := r.Context()
-	logger := middleware.FromContext(con)
 
-	logger.InfoLog.Println("Received log in request")
+	app.Logger.InfoLog.Println("Received log in request")
 	var params dto.UserLogin
 	if err := utils.FromJSON(&params, r.Body); err != nil {
-		logger.ErrorLog.Printf("Failed to decode JSON: %v", err)
+		app.Logger.ErrorLog.Printf("Failed to decode JSON: %v", err)
 		utils.RespondWithJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
 		return
 	}
@@ -70,7 +64,7 @@ func (app *Application) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := service.ValidateUser(app.Db, params, logger)
+	err := service.ValidateUser(app.Db, params, app.Logger)
 	if err != nil {
 		status := http.StatusUnauthorized
 		if err.Error() == "" {
@@ -84,7 +78,7 @@ func (app *Application) login(w http.ResponseWriter, r *http.Request) {
 	}
 	token, refresh, err := utils.CreateToken(params.Username)
 	if err != nil {
-		logger.ErrorLog.Println("Failed To Create A JWT Token")
+		app.Logger.ErrorLog.Println("Failed To Create A JWT Token")
 		utils.RespondWithJSON(w, http.StatusInternalServerError, map[string]string{
 			"error": "Something Went Wrong Please Try Again ",
 		})
@@ -92,7 +86,7 @@ func (app *Application) login(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	service.CreateRefreshToken(con, app.Redis, refresh, params.Username)
+	service.CreateRefreshToken(r.Context(), app.Redis, refresh, params.Username)
 	cookie := http.Cookie{
 		Name:     "access_token",
 		Value:    token,

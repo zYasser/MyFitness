@@ -73,9 +73,6 @@ func AuthorizationMiddleware(redis *redis.Client) func(http.Handler) http.Handle
 					Secure:   true,
 					Path:     "/",
 				}
-				// Use the http.SetCookie() function to send the cookie to the client.
-				// Behind the scenes this adds a `Set-Cookie` header to the response
-				// containing the necessary cookie data.
 				http.SetCookie(w, &cookie)
 
 			} else {

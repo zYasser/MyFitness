@@ -7,7 +7,8 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/zYasser/MyFitness/config"
 	"github.com/zYasser/MyFitness/middleware"
-	"github.com/zYasser/MyFitness/service"
+	"github.com/zYasser/MyFitness/models"
+	"github.com/zYasser/MyFitness/utils"
 	"gorm.io/gorm"
 )
 
@@ -31,13 +32,13 @@ func (app *Application) initRouter() {
 	program_router.HandleFunc("", app.createProgram).Methods(http.MethodPost)
 	program_router.HandleFunc("/all", app.getAllPrograms).Methods(http.MethodGet)
 	program_router.HandleFunc("", app.getProgramById).Queries("id", "{id}")
-	
+
 }
 
 func InitApplication() *Application {
 	application := &Application{Db: config.InitDatabase(), Router: mux.NewRouter(), Redis: config.InitRedis()}
 	application.initRouter()
-	service.Migration(application.Db)
+	models.Migration(application.Db)
 
 	return application
 }
@@ -46,4 +47,5 @@ type Application struct {
 	Router *mux.Router
 	Db     *gorm.DB
 	Redis  *redis.Client
+	Logger *utils.Logger
 }

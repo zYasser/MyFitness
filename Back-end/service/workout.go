@@ -1,18 +1,22 @@
 package service
 
-import "gorm.io/gorm"
+import (
+	"github.com/zYasser/MyFitness/dto"
+	"github.com/zYasser/MyFitness/mapper"
+	"github.com/zYasser/MyFitness/models"
+	"github.com/zYasser/MyFitness/utils"
+	"gorm.io/gorm"
+)
 
-type Workout struct {
-	gorm.Model
+func createWorkout(db *gorm.DB, logger *utils.Logger, dto dto.WorkoutCreateDTO) (*models.Workout, *ServiceError) {
+	workout := mapper.MapToWorkout(dto)
 
-	ID              uint   `gorm:"primaryKey;autoIncrement"`
-	Name            string `json:"name"`
-	Day             uint   `gorm:"not null"`
-	RepLowerBound   *uint
-	RepUpperBound *uint
-	Description     *string
-	ExerciseID uint
-	ProgramId   uint
+	if err := db.Create(workout).Error; err != nil {
+		return nil, &ServiceError{
+			Message:    "Failed to create workout",
+			StatusCode: 500,
+		}
+	}
 
-
+	return workout, nil
 }

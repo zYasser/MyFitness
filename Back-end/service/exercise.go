@@ -4,19 +4,12 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/zYasser/MyFitness/models"
 	"github.com/zYasser/MyFitness/utils"
 	"gorm.io/gorm"
 )
 
-type Exercise struct {
-	gorm.Model
-
-	Name string `json:"name" gorm:"not null"`
-	Type string `json:"type" gorm:"not null"`
-	Workout []Workout
-}
-
-func (exercise *Exercise) InsertExercise(db *gorm.DB, logger *utils.Logger) error {
+func InsertExercise(exercise *models.Exercise, db *gorm.DB, logger *utils.Logger) error {
 
 	tx := db.Create(&exercise)
 	logger.InfoLog.Printf("Inserting: %v  ", *exercise)
@@ -29,15 +22,15 @@ func (exercise *Exercise) InsertExercise(db *gorm.DB, logger *utils.Logger) erro
 
 }
 
-func GetAllExercise(db *gorm.DB, logger *utils.Logger) []Exercise {
-	var e []Exercise
+func GetAllExercise(db *gorm.DB, logger *utils.Logger) []models.Exercise {
+	var e []models.Exercise
 	db.Find(&e)
 	logger.InfoLog.Print("Fetching All Exercises:")
 	return e
 }
 
-func GetExerciseById(id string, db *gorm.DB, logger *utils.Logger) (*Exercise, *ServiceError) {
-	var e Exercise
+func GetExerciseById(id string, db *gorm.DB, logger *utils.Logger) (*models.Exercise, *ServiceError) {
+	var e models.Exercise
 	result := db.First(&e, "id = ? ", id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {

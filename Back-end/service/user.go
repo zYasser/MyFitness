@@ -3,25 +3,15 @@ package service
 import (
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/zYasser/MyFitness/dto"
+	"github.com/zYasser/MyFitness/models"
 	"github.com/zYasser/MyFitness/utils"
 	"gorm.io/gorm"
-	"strings"
-	"time"
 )
 
-type User struct {
-	gorm.Model
-
-	ID       uint       `gorm:"primaryKey;autoIncrement" json:"id"`
-	Name     string     `json:"name"`
-	Email    string     `gorm:"unique" json:"email"`
-	Username *string    `gorm:"unique" json:"username"`
-	Birthday *time.Time `json:"birthday"`
-	Password string     `json:"-"`
-}
-
-func (user *User) CreateUser(db *gorm.DB, logger *utils.Logger) error {
+func CreateUser(user models.User, db *gorm.DB, logger *utils.Logger) error {
 	hashedPassword, err := utils.HashPassword(user.Password)
 	if err != nil {
 		logger.ErrorLog.Printf("Failed To hash the password")
@@ -45,7 +35,7 @@ func (user *User) CreateUser(db *gorm.DB, logger *utils.Logger) error {
 func ValidateUser(db *gorm.DB, credential dto.UserLogin, logger *utils.Logger) error {
 	logger.InfoLog.Printf("User:%s trying to login ", credential.Username)
 
-	var user User
+	var user models.User
 	result := db.Where("username= ?", credential.Username).First(&user)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
