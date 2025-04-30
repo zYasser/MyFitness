@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -20,7 +21,7 @@ type Connector struct {
 var bindAddress = ":9090"
 
 func main() {
-
+fmt.Println("TEST")
 	con := &Connector{}
 	app:=controller.InitApplication()
 	con.router = app.Router

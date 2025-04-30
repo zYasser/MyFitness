@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Attach to Delve DAP",
+        "type": "go",
+        "remotePath": "${workspaceFolder}",
+        "port": 56462,
+        "host": "127.0.0.1",
+        "cwd": "${workspaceFolder}",
+        "request": "launch",
+        "mode": "auto",
+"program": "${workspaceFolder}/main.go",
+        "logOutput": "dap",
+        "showLog": true,
+      }
+    ]
+  }
+  

@@ -41,15 +41,15 @@ func AuthorizationMiddleware(redis *redis.Client) func(http.Handler) http.Handle
 			}
 
 			claims, err := utils.VerifyToken(cookie.Value)
-			if(err==nil){
+			if err == nil {
 				next.ServeHTTP(w, r)
 				return
 			}
 			if err != nil {
 				var e utils.JwtExpireTokenErr
-				if !errors.Is(err, e){
+				if !errors.Is(err, e) {
 					http.Error(w, "Unauthorized", http.StatusUnauthorized)
-					
+
 					return
 				}
 			}
@@ -76,7 +76,7 @@ func AuthorizationMiddleware(redis *redis.Client) func(http.Handler) http.Handle
 				http.SetCookie(w, &cookie)
 
 			} else {
-				logger.ErrorLog.Printf("Refresh Token Expired %s" , old_refresh)
+				logger.ErrorLog.Printf("Refresh Token Expired %s", old_refresh)
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
 
